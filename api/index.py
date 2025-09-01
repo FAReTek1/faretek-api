@@ -7,11 +7,17 @@ from typing import Final
 from zipfile import ZipFile
 import json
 import asyncio
-from typing import Coroutine, Any
 import shutil
 import markdown_it
 
-import commons
+
+commons_headers: Final[dict[str, str]] = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36",
+    "x-csrftoken": "a",
+    "x-requested-with": "XMLHttpRequest",
+    "referer": "https://scratch.mit.edu",
+}
 
 SB2GS_INPUT: Final[Path] = Path("/tmp/sb2gs-input.sb3")
 SB2GS_OUTPUT: Final[Path] = Path("/tmp/sb2gs-output")
@@ -66,7 +72,7 @@ def decompile_sb2gs():
 
     project_id = int(project_id)
     data_json = (httpx.get(f"https://api.scratch.mit.edu/projects/{project_id}",
-                           headers=commons.headers)
+                           headers=commons_headers)
                      .raise_for_status()
                      .json())
     project_token = data_json.get("project_token")
@@ -78,7 +84,7 @@ def decompile_sb2gs():
 
     project_json_content = (httpx.get(f"https://projects.scratch.mit.edu/{project_id}",
                                       params={"token": project_token},
-                                      headers=commons.headers)
+                                      headers=commons_headers)
                             .raise_for_status()
                             .content)
 
