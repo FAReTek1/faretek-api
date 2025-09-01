@@ -11,9 +11,9 @@ from typing import Coroutine, Any
 import shutil
 import markdown_it
 
-SB2GS_INPUT: Final[Path] = Path("sb2gs-input.sb3")
-SB2GS_OUTPUT: Final[Path] = Path("sb2gs-output")
-SB2GS_ZIPFILE: Final[Path] = Path("sb2gs-zipfile.zip")
+SB2GS_INPUT: Final[Path] = Path("/tmp/sb2gs-input.sb3")
+SB2GS_OUTPUT: Final[Path] = Path("/tmp/sb2gs-output")
+SB2GS_ZIPFILE: Final[Path] = Path("/tmp/sb2gs-zipfile.zip")
 HTTPY: Final[httpx.AsyncClient] = httpx.AsyncClient()
 app = Flask(__name__)
 MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
@@ -98,7 +98,7 @@ def decompile_sb2gs():
 
     sb2gs.decompile(SB2GS_INPUT, SB2GS_OUTPUT)
 
-    shutil.make_archive("sb2gs-zipfile", "zip", SB2GS_OUTPUT)
+    shutil.make_archive("/tmp/sb2gs-zipfile", "zip", SB2GS_OUTPUT)
     server_response.data = SB2GS_ZIPFILE.read_bytes()
     server_response.headers["Content-Type"] = "application/zip"
 
