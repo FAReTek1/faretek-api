@@ -89,22 +89,19 @@ def decompile_sb2gs():
                             .content)
 
     project_json = json.loads(project_json_content)
-
-    md5exts: list[str] = []
-    resps: list[httpx.Response] = []
+    asset_data: dict[str, httpx.Response] = {}
 
     for sprite in project_json["targets"]:
         for asset in sprite["costumes"] + sprite["sounds"]:
             md5ext: str = asset["md5ext"]
-            md5exts.append(md5ext)
-            resps.append(httpx.get(f"https://assets.scratch.mit.edu/internalapi/asset/{md5ext}/get/"))
+            asset_data[md5ext] = httpx.get(f"https://assets.scratch.mit.edu/internalapi/asset/{md5ext}/get/")
 
     with ZipFile(SB2GS_INPUT, "w") as archive:
         archive.writestr("project.json", project_json_content)
-        for md5ext, resp in zip(md5exts, resps):
+        for md5ext, resp in asset_data.items():
             archive.writestr(md5ext, resp.content)
 
-    sb2gs.decompile(SB2GS_INPUT, SB2GS_OUTPUT)
+    sb2gs.decompile(SB2GS_INPUT, SB2GS_OUTPUT, True, True)
 
     shutil.make_archive("/tmp/sb2gs-zipfile", "zip", SB2GS_OUTPUT)
     server_response.data = SB2GS_ZIPFILE.read_bytes()
