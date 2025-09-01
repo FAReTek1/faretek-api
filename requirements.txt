@@ -1,4 +1,4 @@
-git+https://github.com/FAReTek1/sb2gs
 Flask~=3.1.2
 flask[async]
 httpx~=0.28.1
+vercel/path0/sb2gs-2.0.0-py3-none-any.whl
