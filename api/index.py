@@ -109,6 +109,7 @@ def decompile_sb2gs():
     shutil.make_archive("/tmp/sb2gs-zipfile", "zip", SB2GS_OUTPUT)
     server_response.data = SB2GS_ZIPFILE.read_bytes()
     server_response.headers["Content-Type"] = "application/zip"
+    server_response.headers["Access-Control-Allow-Origin"] = "*"
 
     return server_response
 
