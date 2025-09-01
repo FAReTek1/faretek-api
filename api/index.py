@@ -10,6 +10,7 @@ import json
 import asyncio
 import shutil
 import markdown_it
+from pathlib import Path
 
 commons_headers: Final[dict[str, str]] = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -31,7 +32,7 @@ MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 
 @app.route('/')
 def home():
-    return MARKDOWNIT_PARSER.render(open("home.md").read())
+    return MARKDOWNIT_PARSER.render(Path("./home.md").read_text())
 
 @app.route('/api/sb2gs/')
 @flask_headers({
