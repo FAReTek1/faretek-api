@@ -6,11 +6,9 @@ import httpx
 from typing import Final
 from zipfile import ZipFile
 import json
-import asyncio
 import shutil
 import markdown_it
 from pathlib import Path
-import os
 
 commons_headers: Final[dict[str, str]] = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -31,9 +29,10 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def home():
-    print(os.path.dirname(__file__))
-    return MARKDOWNIT_PARSER.render((Path(os.path.dirname(__file__)) / "home.md").resolve().read_text())
+@app.errorhandler(404)
+def home(_ = None):
+    return flask.redirect("https://faretek1.github.io/faretek-api/")
+
 
 @app.route('/api/sb2gs/')
 @flask_headers({
@@ -43,10 +42,6 @@ def decompile_sb2gs():
     """
     Decompile a project using sb2gs, convert to zip, and ship back.
     """
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
     project_id = request.args.get('id')
     server_response = flask.Response()  # headers={'Content-Type': 'application/zip'})
 
