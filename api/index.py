@@ -30,8 +30,8 @@ MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 
 
 @app.route('/')
-def index():
-    return MARKDOWNIT_PARSER.render(open("index.md").read())
+def home():
+    return MARKDOWNIT_PARSER.render(open("home.md").read())
 
 @app.route('/api/sb2gs/')
 @flask_headers({
