@@ -32,7 +32,7 @@ MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 app = Flask(__name__)
 
 limiter = Limiter(
-    get_remote_address,
+    key_func=get_remote_address,
     app=app,
     default_limits=["20 per minute"],
     storage_uri="memory://",
