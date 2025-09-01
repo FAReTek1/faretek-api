@@ -1,6 +1,8 @@
 import flask
 from flask import Flask, request
 from flask_headers import headers as flask_headers
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import sb2gs
 import httpx
 from typing import Final
@@ -25,16 +27,23 @@ SB2GS_OUTPUT: Final[Path] = Path("/tmp/sb2gs-output")
 SB2GS_ZIPFILE: Final[Path] = Path("/tmp/sb2gs-zipfile.zip")
 HTTPY: Final[httpx.AsyncClient] = httpx.AsyncClient()
 """Async httpx client for general async requests"""
-
-app = Flask(__name__)
 MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 
+app = Flask(__name__)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["20 per minute"],
+    storage_uri="memory://",
+)
 
 @app.route('/')
 def home():
     print(os.path.dirname(__file__))
     return MARKDOWNIT_PARSER.render((Path(os.path.dirname(__file__)) / "home.md").resolve().read_text())
 
+@limiter.limit("3 per minute")
 @app.route('/api/sb2gs/')
 @flask_headers({
     "Access-Control-Allow-Origin": "*"
@@ -98,6 +107,10 @@ def decompile_sb2gs():
 
     return server_response
 
+@app.route("/ping")
+@limiter.exempt
+def ping():
+    return "PONG"
 
 if __name__ == '__main__':
     app.run(debug=True)
