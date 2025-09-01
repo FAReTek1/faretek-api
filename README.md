@@ -1,5 +1,7 @@
 # Faretek-api
 
+## [docs](https://faretek1.github.io/faretek-api/)
+
 This is the source code for my backend server running [on vercel](https://faretek-api.vercel.app/). 
 If anyone knows a way I can simply prove that this repository is directly linked to that vercel instance, I would like to know, for openness. 
 I've tried disabling `Build logs and source protection` but it only seems to be viewable if I provide a deployment id, e.g.:

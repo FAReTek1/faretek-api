@@ -11,7 +11,6 @@ import asyncio
 import shutil
 import markdown_it
 
-
 commons_headers: Final[dict[str, str]] = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                   "(KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36",
@@ -31,30 +30,8 @@ MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 
 
 @app.route('/')
-def home():
-    return MARKDOWNIT_PARSER.render("""\
-# Hello
-I wrote this particular web page in markdown but I am using markdownit.py to render it as html. Pretty cool huh.
-# [About](/about)
-""")
-
-
-@app.route('/about')
-def about():
-    return MARKDOWNIT_PARSER.render("""\
-# About
-The link worked. Anyway this is my api, and I'm hosting it on vercel.
-
-- [My GitHub account](https://github.com/FAReTek1/)
-- [Source code](https://github.com/FAReTek1/faretek-api/)
-
-In the future I plan to host docs for this on my github pages.
-- # `GET` [/api/sb2gs/?id=885002848](/api/sb2gs/?id=885002848)
-  Decompile a project with sb2gs, and return it as a zip file.
-  Query parameters:
-  - `id`: The project id
-""")
-
+def index():
+    return MARKDOWNIT_PARSER.render(open("index.md").read())
 
 @app.route('/api/sb2gs/')
 @flask_headers({

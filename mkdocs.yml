@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 
 site_name: faretek-api docs
-site_url: https://faretek1.github.io/faretek-api/
+site_url: 'https://faretek1.github.io/faretek-api/
 site_description: Documentation for faretek's API
 
 repo_url: https://github.com/FAReTek1/faretek-api
@@ -92,5 +92,3 @@ extra:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/XGKV8X9hfh
 
-extra_css:
-  - stylesheets/extra.css
