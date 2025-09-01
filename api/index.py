@@ -61,14 +61,14 @@ async def decompile_sb2gs():
         return flask.Response(status=404)
 
     project_id = int(project_id)
-    project_token = (httpx.get(f"https://api.scratch.mit.edu/projects/{project_id}")
+    data_json = (httpx.get(f"https://api.scratch.mit.edu/projects/{project_id}")
                      .raise_for_status()
-                     .json()
-                     .get("project_token"))
+                     .json())
+    project_token = data_json.get("project_token")
 
     if project_token is None:
         server_response.status = 404
-        server_response.data = "Could not get a project token, but got json response."
+        server_response.data = f"Could not get a project token, but got json response: {data_json}"
         return server_response
 
     project_json_content = (httpx.get(f"https://projects.scratch.mit.edu/{project_id}",
