@@ -3,7 +3,6 @@ from flask import Flask, request
 from flask_headers import headers as flask_headers
 import sb2gs
 import httpx
-from pathlib import Path
 from typing import Final
 from zipfile import ZipFile
 import json
@@ -11,6 +10,7 @@ import asyncio
 import shutil
 import markdown_it
 from pathlib import Path
+import os
 
 commons_headers: Final[dict[str, str]] = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -32,7 +32,8 @@ MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 
 @app.route('/')
 def home():
-    return MARKDOWNIT_PARSER.render(Path("./home.md").read_text())
+    print(os.path.dirname(__file__))
+    return MARKDOWNIT_PARSER.render((Path(os.path.dirname(__file__)) / "home.md").resolve().read_text())
 
 @app.route('/api/sb2gs/')
 @flask_headers({
