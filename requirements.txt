@@ -13,4 +13,4 @@ pillow
 mdurl
 markdown-it-py
 rich
-./sb2gs
+git+https://github.com/FAReTek1/sb2gs
