@@ -21,21 +21,31 @@ MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 
 @app.route('/')
 def home():
-    server_response = flask.Response()
-    server_response.data = MARKDOWNIT_PARSER.render("""\
+    return MARKDOWNIT_PARSER.render("""\
 # Hello
 I wrote this particular web page in markdown but I am using markdownit.py to render it as html. Pretty cool huh.
+# [About](/about)
 """)
-
-    return server_response
 
 
 @app.route('/about')
 def about():
-    return 'About'
+    return MARKDOWNIT_PARSER.render("""\
+# About
+The link worked. Anyway this is my api, and I'm hosting it on vercel.
+
+- [My GitHub account](https://github.com/FAReTek1/)
+- [Source code](https://github.com/FAReTek1/faretek-api/)
+
+In the future I plan to host docs for this on my github pages.
+- # `GET` [/api/sb2gs/?id=885002848](/api/sb2gs/?id=885002848)
+  Decompile a project with sb2gs, and return it as a zip file.
+  Query parameters:
+  - `id`: The project id
+""")
 
 
-@app.route('/sb2gs/')
+@app.route('/api/sb2gs/')
 async def decompile_sb2gs():
     """
     Decompile a project using sb2gs, convert to zip, and ship back.
@@ -85,12 +95,8 @@ async def decompile_sb2gs():
             archive.writestr(md5ext, resp.content)
 
     sb2gs.decompile(SB2GS_INPUT, SB2GS_OUTPUT)
-    for root, dirs, files in SB2GS_OUTPUT.walk():
-        print(root, dirs, files)
 
     shutil.make_archive("sb2gs-zipfile", "zip", SB2GS_OUTPUT)
-    print(SB2GS_ZIPFILE.absolute().as_posix())
-
     server_response.data = SB2GS_ZIPFILE.read_bytes()
     server_response.headers["Content-Type"] = "application/zip"
 
