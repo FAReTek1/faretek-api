@@ -1,5 +1,6 @@
 import flask
 from flask import Flask, request
+from flask_headers import headers as flask_headers
 import sb2gs
 import httpx
 from pathlib import Path
@@ -56,6 +57,9 @@ In the future I plan to host docs for this on my github pages.
 
 
 @app.route('/api/sb2gs/')
+@flask_headers({
+    "Access-Control-Allow-Origin": "*"
+})
 def decompile_sb2gs():
     """
     Decompile a project using sb2gs, convert to zip, and ship back.
@@ -93,7 +97,8 @@ def decompile_sb2gs():
 
     for sprite in project_json["targets"]:
         for asset in sprite["costumes"] + sprite["sounds"]:
-            md5ext: str = asset["md5ext"]
+            md5ext: str = asset.get("md5ext",
+                                    asset["assetId"] + '.' + asset["dataFormat"])
             asset_data[md5ext] = httpx.get(f"https://assets.scratch.mit.edu/internalapi/asset/{md5ext}/get/")
 
     with ZipFile(SB2GS_INPUT, "w") as archive:
@@ -101,12 +106,16 @@ def decompile_sb2gs():
         for md5ext, resp in asset_data.items():
             archive.writestr(md5ext, resp.content)
 
-    sb2gs.decompile(SB2GS_INPUT, SB2GS_OUTPUT, True, True)
+    try:
+        sb2gs.decompile(SB2GS_INPUT, SB2GS_OUTPUT, True, True)
+    except Exception as e:
+        server_response.status = 424
+        server_response.data = f"sb2gs decompile error: {e}"
+        return server_response
 
     shutil.make_archive("/tmp/sb2gs-zipfile", "zip", SB2GS_OUTPUT)
     server_response.data = SB2GS_ZIPFILE.read_bytes()
     server_response.headers["Content-Type"] = "application/zip"
-    server_response.headers["Access-Control-Allow-Origin"] = "*"
 
     return server_response
 
