@@ -11,10 +11,14 @@ from typing import Coroutine, Any
 import shutil
 import markdown_it
 
+import commons
+
 SB2GS_INPUT: Final[Path] = Path("/tmp/sb2gs-input.sb3")
 SB2GS_OUTPUT: Final[Path] = Path("/tmp/sb2gs-output")
 SB2GS_ZIPFILE: Final[Path] = Path("/tmp/sb2gs-zipfile.zip")
 HTTPY: Final[httpx.AsyncClient] = httpx.AsyncClient()
+"""Async httpx client for general async requests"""
+
 app = Flask(__name__)
 MARKDOWNIT_PARSER = markdown_it.MarkdownIt()
 
@@ -61,7 +65,8 @@ def decompile_sb2gs():
         return flask.Response(status=404)
 
     project_id = int(project_id)
-    data_json = (httpx.get(f"https://api.scratch.mit.edu/projects/{project_id}")
+    data_json = (httpx.get(f"https://api.scratch.mit.edu/projects/{project_id}",
+                           headers=commons.headers)
                      .raise_for_status()
                      .json())
     project_token = data_json.get("project_token")
@@ -72,24 +77,21 @@ def decompile_sb2gs():
         return server_response
 
     project_json_content = (httpx.get(f"https://projects.scratch.mit.edu/{project_id}",
-                                      params={"token": project_token})
+                                      params={"token": project_token},
+                                      headers=commons.headers)
                             .raise_for_status()
                             .content)
 
     project_json = json.loads(project_json_content)
 
     md5exts: list[str] = []
-    futures: list[Coroutine[Any, Any, httpx.Response]] = []
+    resps: list[httpx.Response] = []
+
     for sprite in project_json["targets"]:
         for asset in sprite["costumes"] + sprite["sounds"]:
             md5ext: str = asset["md5ext"]
             md5exts.append(md5ext)
-            futures.append(HTTPY.get(f"https://assets.scratch.mit.edu/internalapi/asset/{md5ext}/get/"))
-
-    async def gather_assets():
-        return await asyncio.gather(*futures)
-
-    resps: list[httpx.Response] = asyncio.run(gather_assets())
+            resps.append(httpx.get(f"https://assets.scratch.mit.edu/internalapi/asset/{md5ext}/get/"))
 
     with ZipFile(SB2GS_INPUT, "w") as archive:
         archive.writestr("project.json", project_json_content)
