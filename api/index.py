@@ -46,7 +46,7 @@ In the future I plan to host docs for this on my github pages.
 
 
 @app.route('/api/sb2gs/')
-async def decompile_sb2gs():
+def decompile_sb2gs():
     """
     Decompile a project using sb2gs, convert to zip, and ship back.
     """
@@ -77,7 +77,6 @@ async def decompile_sb2gs():
                             .content)
 
     project_json = json.loads(project_json_content)
-    data = ""
 
     md5exts: list[str] = []
     futures: list[Coroutine[Any, Any, httpx.Response]] = []
@@ -87,7 +86,10 @@ async def decompile_sb2gs():
             md5exts.append(md5ext)
             futures.append(HTTPY.get(f"https://assets.scratch.mit.edu/internalapi/asset/{md5ext}/get/"))
 
-    resps: list[httpx.Response] = await asyncio.gather(*futures)
+    async def gather_assets():
+        return await asyncio.gather(*futures)
+
+    resps: list[httpx.Response] = asyncio.run(gather_assets())
 
     with ZipFile(SB2GS_INPUT, "w") as archive:
         archive.writestr("project.json", project_json_content)
