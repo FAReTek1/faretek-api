@@ -5,7 +5,7 @@
     You may have been redirected here from [the api site](https://faretek-api.vercel.app).
     Any requests to the root directory or any 404 responses will instead redirect to this page, the docs.
 
-This is the docs for [my backend server running on vercel](https://faretek-api.vercel.app/). 
+This is the docs for [my backend server running on vercel](https://github.com/faReTek1/faretek-api/). 
 
 ## about
 
@@ -29,9 +29,9 @@ This is the docs for [my backend server running on vercel](https://faretek-api.v
 
     If you want to view the source code, you can click the `Source` tab at the top of the page. 
 
-    If this doesnt work:
+    Or if the previous page resulted in an error:
 
-    4. Append `/source` to the end of the url and press enter.
+    4. Append `/source` to the end of the `Details` url and press enter.
     5. You should be able to see the source code. It should be identical to the GitHub repository at the latest commit.
 
 
