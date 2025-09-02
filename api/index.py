@@ -49,15 +49,23 @@ def decompile_sb2gs():
         return flask.Response(status=404)
 
     project_id = int(project_id)
-    data_json = (httpx.get(f"https://api.scratch.mit.edu/projects/{project_id}",
-                           headers=commons_headers | {
-                               "sec-ch-ua": '"Chromium";v="139", "Not;A=Brand";v="99"',
-                               "sec-ch-ua-mobile": "?0",
-                               "sec-ch-ua-platform": '"Linux"'
-                           })
-                     .raise_for_status()
-                     .json())
-    project_token = data_json.get("project_token")
+
+    def get_project_token(baseurl: str):
+        _data_json = (httpx.get(f"{baseurl}/projects/{project_id}",
+                               headers=commons_headers | {
+                                   "sec-ch-ua": '"Chromium";v="139", "Not;A=Brand";v="99"',
+                                   "sec-ch-ua-mobile": "?0",
+                                   "sec-ch-ua-platform": '"Linux"'
+                               })
+                         .raise_for_status()
+                         .json())
+
+        return _data_json, _data_json.get("project_token")
+
+    data_json, project_token = get_project_token("https://api.scratch.mit.edu")
+
+    if project_token is None:
+        data_json, project_token = get_project_token("https://trampoline.turbowarp.org/api")
 
     if project_token is None:
         server_response.status = 404
