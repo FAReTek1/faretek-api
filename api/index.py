@@ -77,8 +77,12 @@ def decompile_sb2gs():
                                       headers=commons_headers)
                             .raise_for_status()
                             .content)
-
-    project_json = json.loads(project_json_content)
+    try:
+        project_json = json.loads(project_json_content)
+    except Exception as e:
+        server_response.status = 404
+        server_response.data = f"Could not parse project data.\nError: {e}\nProject data: {project_json_content}"
+        return server_response
     asset_data: dict[str, httpx.Response] = {}
 
     for sprite in project_json["targets"]:
@@ -102,6 +106,8 @@ def decompile_sb2gs():
     shutil.make_archive("/tmp/sb2gs-zipfile", "zip", SB2GS_OUTPUT)
     server_response.data = SB2GS_ZIPFILE.read_bytes()
     server_response.headers["Content-Type"] = "application/zip"
+    server_response.headers["Content-Disposition"] = (f"attachment; "
+                                                      f"filename=\"{data_json.get("id")} {data_json.get("title")}.zip\"")
 
     return server_response
 
